@@ -12,4 +12,4 @@ O SIP é um software desenvolvido em Python que utiliza conceitos de processamen
 1. Clone este repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/SIP.git
+git clone https://github.com/FellipePatrick/SIP.git
