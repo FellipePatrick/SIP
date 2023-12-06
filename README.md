@@ -13,5 +13,7 @@ O SIP é um software desenvolvido em Python que utiliza conceitos de processamen
 
 ```bash
 git clone https://github.com/FellipePatrick/SIP.git
-
-2. Execute o codigo: pip install -r requirements.txt
+````
+2. Execute o codigo:
+```bash
+pip install -r requirements.txt
