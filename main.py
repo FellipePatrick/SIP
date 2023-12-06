@@ -1,84 +1,81 @@
+import customtkinter
 import os
-import tkinter as tk
-from tkinter import font
-from tkinter import filedialog
-from PIL import Image, ImageTk  # Certifique-se de ter o módulo Pillow instalado (pip install Pillow)
+from PIL import Image  # Certifique-se de ter o módulo Pillow instalado (pip install Pillow)
 import cv2 as cv
 import matplotlib.pyplot as plt
 
-def abrir_imagem():
+customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
+customtkinter.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
+
+app = customtkinter.CTk()  # create CTk window like you do with the Tk window
+app.geometry("800x600")
+app.title("SIP - Snake Image Processing")
+path = os.path.abspath("logo.ico")
+app.iconbitmap(path)
+
+def openImage():
     # Abrir a caixa de diálogo para escolher o arquivo de imagem
-    caminho_imagem = filedialog.askopenfilename(title="Escolher Imagem", filetypes=[("Arquivos de Imagem", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")])
+    
+    caminho_imagem = customtkinter.filedialog.askopenfilename(title="Escolher Imagem", filetypes=[("Arquivos de Imagem", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")])
 
     # Verificar se o usuário escolheu um arquivo
     if caminho_imagem:
+        lab = customtkinter.CTkLabel(app, text="\t",  font=customtkinter.CTkFont(size=32))
+        lab.place(relx=0.8, rely=0.25, anchor=customtkinter.CENTER)
         global img # Variável global para armazenar a imagem
+        
         # Atualizar a imagem exibida na interface gráfica
-        imagem = Image.open(caminho_imagem)
-        imagem = imagem.resize((300, 300), Image.ANTIALIAS)  # Redimensionar a imagem conforme necessário
-        imagem = ImageTk.PhotoImage(imagem)
-        painel_imagem.config(image=imagem)
-        painel_imagem.imagem = imagem
-        label.config(text=f"Imagem selecionada: {os.path.basename(caminho_imagem)}")
+        imagem = customtkinter.CTkImage(Image.open(caminho_imagem), size=(300, 300))
+        painel_imagem.configure(image=imagem, text="")
+        painel_imagem.place(relx=0.5, rely=0.3, anchor=customtkinter.CENTER)
+
+        label.configure(text=f"Imagem selecionada: {os.path.basename(caminho_imagem)}")
+        label.place(relx=0.5, rely=0.6, anchor=customtkinter.CENTER)
         img = cv.imread(caminho_imagem)
 
 # Função a ser chamada quando o botão for pressionado
-def convolucao():
-    label.config(text="Resultado da imagem filtrada")
-    
-    cv.imshow("Imagem filtrada", img)
-    cv.waitKey(0)
+def convolution():
+    try:
+        menu = customtkinter.CTkOptionMenu(app, values=["Light", "Dark", "System"])
+        menu.place(relx=0.8, rely=0.25, anchor=customtkinter.CENTER);
+        label.configure(text="Resultado da imagem filtrada")
+        cv.imshow("Imagem filtrada", img)
+        cv.waitKey(0)
+    except:
+        print("a")
+
 
 def hist():
-    label.config(text="Resultado da imagem equalizada")
+    lab = customtkinter.CTkLabel(app, text="\t",  font=customtkinter.CTkFont(size=32))
+    lab.place(relx=0.8, rely=0.25, anchor=customtkinter.CENTER)
+    label.configure(text="Resultado da imagem equalizada")
     vals = img.mean(axis=2).flatten()
-    # plot histogram with 255 bins
     b, bins, patches = plt.hist(vals, 255)
     plt.xlim([0,255])
     plt.show()
 
-# Criar a janela principal
-janela = tk.Tk()
-janela.title("SIP - Snake Image Processing")
-# Obter o caminho absoluto para o arquivo logo.ico
-caminho_logo = os.path.abspath("logo.ico")
+# Use CTkButton instead of tkinter Button
+button = customtkinter.CTkButton(master=app, text="Convolução", command=convolution, font=customtkinter.CTkFont(size=13, weight="bold"))
+button.place(relx=0.7, rely=0.7, anchor=customtkinter.CENTER)
+button2 = customtkinter.CTkButton(master=app, text="Carregar Imagem", command=openImage, font=customtkinter.CTkFont(size=13, weight="bold"))
+button2.place(relx=0.5, rely=0.7, anchor=customtkinter.CENTER)
+button3 = customtkinter.CTkButton(master=app, text="Histograma", command=hist, font=customtkinter.CTkFont(size=13, weight="bold"))
+button3.place(relx=0.3, rely=0.7, anchor=customtkinter.CENTER)
 
-# Definir as dimensões da janela (largura x altura + posição x + posição y)
-janela.geometry("800x700")
+path = os.path.abspath("image.png")
 
-# Adicionar um ícone à janela
-janela.iconbitmap(caminho_logo)
+iconCam = customtkinter.CTkImage(Image.open(os.path.join(path)), size=(50, 50))
 
-# Adicionar botões à janela com estilização
-botao_conv = tk.Button(janela, text="Convolução da Imagem", command=convolucao)
-# botao_conv.pack(side=tk.LEFT, padx=20)
+imageIcon = customtkinter.CTkLabel(app, text="")
+imageIcon.configure(image=iconCam)
+imageIcon.place(relx=0.5, rely=0.3, anchor=customtkinter.CENTER)
 
-botao_hist = tk.Button(janela, text="Histograma da Imagem", command=hist)
-# botao_hist.pack(side=tk.LEFT, padx = 20)
+painel_imagem = customtkinter.CTkLabel(app)
 
-# Adicionar um botão para abrir a caixa de diálogo de seleção de imagem
-botao_abrir_imagem = tk.Button(janela, text="Abrir Imagem", command=abrir_imagem)
-# botao_abrir_imagem.pack(side=tk.LEFT, padx=20)
+label = customtkinter.CTkLabel(app, text="Nenhuma imagem selecionada")
+label.place(relx=0.5, rely=0.5, anchor=customtkinter.CENTER)
 
-# Adicionar um rótulo para exibir o nome da imagem selecionada
-label = tk.Label(janela, text="Nenhuma imagem selecionada.")
-# label.pack(side= tk.LEFT,pady=10, anchor=tk.NE, padx=2)
+rodape = customtkinter.CTkLabel(app, text="© 2023 SIP - Snake Image Processing", font=("Inter", 10), pady=10)
+rodape.place(relx=0.5, rely=0.9, anchor=customtkinter.CENTER)
 
-# Adicionar um espaço vazio para melhorar o layout
-# tk.Label(janela, text="").pack()
-
-# Adicionar um painel para exibir a imagem
-painel_imagem = tk.Label(janela)
-# painel_imagem.pack(side=tk.RIGHT, pady=20, anchor=tk.NE, padx=2)
-
-# Adicionar um rodapé
-rodape = tk.Label(janela, text="© 2023 SIP - Snake Image Processing", font=("Helvetica", 8), pady=10)
-# rodape.pack(side=tk.BOTTOM)
-
-botao_abrir_imagem.grid(row=0, column=0, padx=10, pady=10)
-botao_conv.grid(row=1, column=0, padx=10, pady=10)
-botao_hist.grid(row=2, column=0, columnspan=2, pady=10)
-painel_imagem.grid(row=3, column=5, columnspan=2, pady=0,padx=100)
-
-# Iniciar o loop principal da aplicação
-janela.mainloop()
+app.mainloop()
